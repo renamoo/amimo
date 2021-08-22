@@ -1,0 +1,65 @@
+@import "./../../../variables.scss";
+.page {
+  background: $main-blue;
+  display: flex;
+  // cancel padding for decoration in the left side
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.left {
+  display: grid;
+  position: relative;
+  align-items: center;
+  padding: 0 16px 0 8px;
+}
+
+.left_top {
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+
+.left_bottom {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  z-index: 1;
+}
+
+.editors {
+  position: relative;
+  padding: 40px;
+  z-index: 2;
+}
+
+.shadow_middle {
+  background: $accent-light-blue;
+  width: 500px;
+  height: 500px;
+  position: absolute;
+  transform: rotate(10deg);
+  top: 40px;
+}
+
+.editor {
+  position: relative;
+}
+
+.right {
+  flex-grow: 1;
+  padding: 0 8px 0 16px;
+}
+
+.logo {
+  text-align: center;
+  padding: 16px 0 0;
+}
+
+.selector {
+  margin: 16px 20%;
+}
+
+.mode-selector {
+  margin-top: 12px;
+}

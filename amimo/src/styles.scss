@@ -1,1 +1,28 @@
-/* You can add global styles to this file, and also import other style files */
+/*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */
+/**
+ * 1. Correct the line height in all browsers.
+ * 2. Prevent adjustments of font size after orientation changes in iOS.
+ */
+html {
+  line-height: 1.15; /* 1 */
+  -webkit-text-size-adjust: 100%; /* 2 */
+}
+
+body {
+  margin: 0;
+  font-family: "Kaisei Decol", serif;
+  overflow: hidden;
+}
+
+// Personally added styles
+.page {
+  padding: 16px;
+  height: 100vh;
+  box-sizing: border-box;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+}

@@ -1,0 +1,31 @@
+@import "./../../../variables.scss";
+
+.stitch_btn {
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  background: white;
+  border-radius: 15px;
+  padding: 3px;
+  box-sizing: border-box;
+  margin: 5px;
+  border: none;
+  &.selected {
+    border-color: black;
+    border-width: 2px;
+    border-style: solid;
+  }
+  &:hover {
+    background: #bae8eb;
+  }
+}
+
+.stitch_btns {
+  display: flex;
+  flex-flow: row wrap;
+}
+
+.stitch_name {
+  text-align: center;
+  line-height: 1.5rem;
+}

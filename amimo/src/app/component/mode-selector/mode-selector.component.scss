@@ -1,0 +1,32 @@
+@import "./../../../variables.scss";
+
+.mode_btn {
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  background: white;
+  border-radius: 15px;
+  padding: 3px;
+  box-sizing: border-box;
+  margin: 5px;
+  border: none;
+  &.selected {
+    border-color: black;
+    border-width: 2px;
+    border-style: solid;
+  }
+  &:hover {
+    background: #e9fdff;
+  }
+}
+
+.mode_btns {
+  display: flex;
+  flex-flow: row wrap;
+}
+
+.mode_name {
+  text-align: left;
+  font-size: 0.8rem;
+  padding-left: 8px;
+}

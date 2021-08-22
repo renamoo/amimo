@@ -1,7 +1,17 @@
+import { TopPageComponent } from './top/top-page/top-page.component';
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 
-const routes: Routes = [];
+const routes: Routes = [
+  {
+    path: '',
+    component: TopPageComponent
+  },
+  {
+    path: '**',
+    redirectTo: ''
+  }
+];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],

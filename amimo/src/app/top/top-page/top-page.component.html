@@ -1,0 +1,35 @@
+<div class="page">
+  <div class="left">
+    <div class="left_top">
+      <svg viewBox="-100 410 800 100" xmlns="http://www.w3.org/2000/svg">
+        <g fill="#a8f4fb"
+           transform="rotate(-10)">
+          <path id="shadow" d="M0,0 L500,0 L500,500 L0,500 Z" />
+        </g>
+      </svg>
+    </div>
+    <div class="editors">
+      <div class="shadow_middle"></div>
+      <app-rectangle-editor class="editor" [stitchType]="selectedStitch" [mode]="editMode"></app-rectangle-editor>
+    </div>
+    <div class="left_bottom">
+      <svg viewBox="-100 -100 800 100" xmlns="http://www.w3.org/2000/svg">
+        <g fill="#a8f4fb"
+           transform="rotate(-10)">
+          <path id="shadow" d="M0,0 L500,0 L500,500 L0,500 Z" />
+        </g>
+      </svg>
+    </div>
+  </div>
+  <div class="right">
+    <div class="logo">
+      <img src="assets/logo.png">
+    </div>
+    <div class="selector">
+      <app-stitch-selector [(selected)]="selectedStitch"></app-stitch-selector>
+      <div class="mode-selector">
+        <app-mode-selector [(selected)]="editMode"></app-mode-selector>
+      </div>
+    </div>
+  </div>
+</div>

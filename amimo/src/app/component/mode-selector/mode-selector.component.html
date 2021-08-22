@@ -1,0 +1,13 @@
+<div class="mode_name">
+  {{hovered != null && modes[hovered].mode || selected != null && modes[selected].mode || "　" }}
+</div>
+<div class="mode_btns">
+  <ng-container *ngFor="let mode of modes">
+    <button class="mode_btn" [class.selected]="mode.index == selected" [name]="mode.mode" (mouseenter)="onMouseEnter(mode.index)" (mouseleave)="onMouseLeave(mode.index)" (focus)="onMouseEnter(mode.index)" (blur)="onMouseLeave(mode.index)" (click)="onClick(mode.index)">
+      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
+        <path [attr.d]="mode.path"/>
+      </svg>
+    </button>
+  </ng-container>
+</div>
+

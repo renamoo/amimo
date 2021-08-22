@@ -1,0 +1,12 @@
+<div class="stitch_name">
+  {{hovered != null && stitch_btns[hovered].name || selected != null && stitch_btns[selected].name ||  "　" }}
+</div>
+<div class="stitch_btns">
+  <ng-container *ngFor="let st of stitch_btns">
+    <button class="stitch_btn" [class.selected]="st.index == selected" [name]="st.name" (mouseenter)="onMouseEnter(st.index)" (mouseleave)="onMouseLeave(st.index)" (focus)="onMouseEnter(st.index)" (blur)="onMouseLeave(st.index)" (click)="onClick(st.index)">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <path [attr.d]="st.path" stroke="black" stroke-width="3" fill="none" />
+      </svg>
+    </button>
+  </ng-container>
+</div>
