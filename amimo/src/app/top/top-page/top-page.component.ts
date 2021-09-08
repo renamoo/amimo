@@ -14,4 +14,9 @@ export class TopPageComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  onStichSelect(stitch: number){
+    this.selectedStitch = stitch;
+    this.editMode = 0;
+  }
+
 }

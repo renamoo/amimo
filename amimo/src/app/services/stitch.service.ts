@@ -63,8 +63,22 @@ const STITCHES: Stitch[] = [
     path: "M20,50 A20,10 0,1,0 80,50 M80,50 A20,10 0,1,0 20,50",
     name: "くさり編み"
   },
+  {
+    index: 12,
+    path: "M50,20 A10,20 0,1,0 50,80 M50,80 A10,20 0,1,0 50,20",
+    name: "立ち上がりくさり1目"
+  },
+  {
+    index: 13,
+    path: "M50,20 A8,16 0,1,0 50,50 M50,50 A8,16 0,1,0 50,20 M50,50 A8,16 0,1,0 50,80 M50,80 A8,16 0,1,0 50,50",
+    name: "立ち上がりくさり2目"
+  },
+  {
+    index: 14,
+    path: "M50,05 A5,10 0,1,0 50,35 M50,35 A5,10 0,1,0 50,05 M50,35 A5,10 0,1,0 50,65 M50,65 A5,10 0,1,0 50,35 M50,65 A5,10 0,1,0 50,95 M50,95 A5,10 0,1,0 50,65",
+    name: "立ち上がりくさり3目"
+  },
 ];
-
 @Injectable({
   providedIn: 'root'
 })
@@ -143,6 +157,18 @@ export class StitchService {
         break;
       case 11:
         g.drawEllipse(10,10,7,4);
+        break;
+      case 12:
+        g.drawEllipse(10,10,4,7);
+        break;
+      case 13:
+        g.drawEllipse(10,5,3,5);
+        g.drawEllipse(10,15,3,5);
+        break;
+      case 14:
+        g.drawEllipse(10,3,2,3);
+        g.drawEllipse(10,10,2,3);
+        g.drawEllipse(10,17,2,3);
         break;
     }
     return g;
