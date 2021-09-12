@@ -26,9 +26,9 @@
       <img src="assets/logo.png">
     </div>
     <div class="selector">
-      <app-stitch-selector [selected]="selectedStitch" (selectedChange)="onStichSelect($event)"></app-stitch-selector>
+      <app-stitch-selector [selected]="hideStitchSelect ? null : selectedStitch" (selectedChange)="onStichSelect($event)"></app-stitch-selector>
       <div class="mode-selector">
-        <app-mode-selector [(selected)]="editMode"></app-mode-selector>
+        <app-mode-selector [selected]="editMode"(selectedChange)="onModeSelect($event)"></app-mode-selector>
       </div>
     </div>
   </div>

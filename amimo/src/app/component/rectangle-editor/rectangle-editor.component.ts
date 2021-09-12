@@ -208,15 +208,19 @@ export class RectangleEditorComponent implements OnInit {
     return corner;
   }
 
+  private initSupport(){
+    this.transformSupport = this.getTransformSupport();
+    this.app.stage.addChild(this.transformSupport);
+    this.rotateSupport = this.getRotateSupport();
+    this.app.stage.addChild(this.rotateSupport);
+  }
+
   onClickForTransform(target: PIXI.Graphics){
     if(this.transformSupport){
       this.transformSupport.destroy();
       this.rotateSupport.destroy();
     }
-    this.transformSupport = this.getTransformSupport();
-    this.app.stage.addChild(this.transformSupport);
-    this.rotateSupport = this.getRotateSupport();
-    this.app.stage.addChild(this.rotateSupport);
+    this.initSupport();
     const pos = target.getGlobalPosition();
     this.transformSupport.x = pos.x - 25;
     this.transformSupport.y = pos.y - 25;

@@ -7,6 +7,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class TopPageComponent implements OnInit {
   selectedStitch:number = 0;
+  hideStitchSelect = false;
   editMode:number = 0;
 
   constructor() { }
@@ -17,6 +18,11 @@ export class TopPageComponent implements OnInit {
   onStichSelect(stitch: number){
     this.selectedStitch = stitch;
     this.editMode = 0;
+  }
+
+  onModeSelect(mode: number){
+    this.editMode = mode;
+    this.hideStitchSelect = mode !== 0;
   }
 
 }
