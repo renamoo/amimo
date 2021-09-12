@@ -31,5 +31,10 @@
         <app-mode-selector [selected]="editMode"(selectedChange)="onModeSelect($event)"></app-mode-selector>
       </div>
     </div>
+    <div>
+      <div class="save">
+        <button (click)="onSave()">編み図を画像で保存</button>
+      </div>
+    </div>
   </div>
 </div>

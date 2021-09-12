@@ -25,4 +25,8 @@ export class TopPageComponent implements OnInit {
     this.hideStitchSelect = mode !== 0;
   }
 
+  onSave(){
+
+  }
+
 }

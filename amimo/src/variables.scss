@@ -1,2 +1,13 @@
 $main-blue: #83e2eb;
 $accent-light-blue: #a8f4fb;
+
+@mixin button_style {
+  border: none;
+  font-family: "Kaisei Decol", serif;
+  font-size: 1rem;
+  padding: 8px 16px;
+  border-radius: 8px;
+  &:hover {
+    cursor: pointer;
+  }
+}
