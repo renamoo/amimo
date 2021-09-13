@@ -1,3 +1,4 @@
+import { RectangleEditorService } from './../../component/rectangle-editor/rectangle-editor.service';
 import { Component, OnInit } from '@angular/core';
 
 @Component({
@@ -10,7 +11,7 @@ export class TopPageComponent implements OnInit {
   hideStitchSelect = false;
   editMode:number = 0;
 
-  constructor() { }
+  constructor(private service: RectangleEditorService) { }
 
   ngOnInit(): void {
   }
@@ -26,7 +27,15 @@ export class TopPageComponent implements OnInit {
   }
 
   onSave(){
-
+    // const url = URL.createObjectURL(this.service.getImage());
+    console.log(this.service.getImage());
+    const a = document.createElement("a");
+    document.body.appendChild(a);
+    a.download = 'foo.jpeg';
+    a.href =　this.service.getImage();
+    a.click();
+    a.remove();
+    // URL.revokeObjectURL(url);
   }
 
 }
