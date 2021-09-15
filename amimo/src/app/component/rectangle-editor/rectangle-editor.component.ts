@@ -44,7 +44,7 @@ export class RectangleEditorComponent implements OnInit {
       this.renderer.appendChild(this.container.nativeElement, this.pixiService.app.view);
       this.pixiService.app.stage.addChild(...this.createGrid());
       this.pixiService.app.stage.addChild(...this.createBoldGrid());
-      // this.pixiService.drawGrid();
+      // this.pixiService.drawGrid(this.onGridPointerMove);
       this.pixiService.app.renderer.plugins.interaction.moveWhenInside = true;
     });
   }
@@ -53,45 +53,9 @@ export class RectangleEditorComponent implements OnInit {
     if(!sc["mode"].firstChange && (sc["mode"].previousValue != sc["mode"].currentValue)){
       switch(this.mode){
         case 0:
-          if(sc["mode"].previousValue != 1){
-            this.pixiService.app.stage.children.forEach(ch => {
-              if(ch.name && ch.name.startsWith("grid")){
-                ch.interactive = true
-              }else if(ch.name && ch.name.startsWith("stitch")){
-                ch.interactive = false;
-                ch.on('pointermove', () => {})
-                  .on('pointerdown', () => {})
-                  .on('pointerup', () => {})
-                  .on('pointerupoutside',  () => {})
-              }
-            });
-          }
-          break;
         case 1:
-        case 2:
-          this.pixiService.app.stage.children.forEach(ch => {
-            if(ch.name && ch.name.startsWith("grid")){
-              ch.interactive = false;
-              if((ch as PIXI.Graphics).children){
-                ((ch as PIXI.Graphics).children).forEach(st => {
-                  st.interactive = true;
-                  // st.setTransform(10,undefined,2);
-                  st.on('pointerdown', event => this.onClickForTransform(event.currentTarget));
-                  // st.on('pointermove', event => {
-                  //   event.data.pressure>0 && console.log("ok")
-                    // if(this.dragging && event.data.pressure>0){
-                    //   this.onDragStart(event.currentTarget);
-                    //   console.log(event.currentTarget);
-                    // }
-                    // .on('pointerdown', event => this.onDragStart(event))
-                    // .on('pointerup', this.onDragEnd)
-                    // .on('pointerupoutside', this.onDragEnd);
-                  // });
-                });
-              }
-            }
-          });
-          break;
+          if(this.transformSupport){this.transformSupport.visible = false;}
+          if(this.rotateSupport){this.rotateSupport.visible = false;}
       }
     }
   }
@@ -133,24 +97,35 @@ export class RectangleEditorComponent implements OnInit {
     rectangle.drawRect(0, 0, 20, 20);
     rectangle.interactive = true;
     rectangle.hitArea = new PIXI.Rectangle(0,0,20,20);
-    rectangle.on('pointermove', event => this.onSelect(event.currentTarget, event.data));
+    rectangle.on('pointermove', event => this.onGridPointerMove(event.currentTarget, event.data));
     return rectangle;
   }
 
-  onSelect(target: PIXI.Container, data:any){
+  onGridPointerMove(target: PIXI.Container, data:any){
     if(data.pressure>0){
       switch(this.mode){
         case 0:
           let rectangle = this.getSymbol();
-          target.removeChildren();
           rectangle.name = "stitch";
           rectangle.hitArea = new PIXI.Rectangle(0,0,20,20);
           rectangle.buttonMode = true;
-          this.stitches.push(rectangle);
-          target.addChild(rectangle);
+          const global = target.getGlobalPosition();
+          rectangle.x = global.x;
+          rectangle.y = global.y;
+          rectangle.on('pointermove', event => this.onStitchPointerMove(event.currentTarget, event.data));
+          rectangle.on('pointerdown', event => this.onClickForTransform(event.currentTarget));
+          this.pixiService.app.stage.addChild(rectangle);
           break;
+      }
+    }
+  }
+
+  onStitchPointerMove(target: PIXI.Container, data:any){
+    if(data.pressure>0){
+      switch(this.mode){
         case 1:
-          target.removeChildren();break;
+          target.destroy();
+          break;
       }
     }
   }
@@ -211,6 +186,11 @@ export class RectangleEditorComponent implements OnInit {
     return corner;
   }
 
+  private cleanUpSupport(){
+    if(this.transformSupport){this.transformSupport.destroy();}
+    if(this.rotateSupport){this.rotateSupport.destroy();}
+  }
+
   private initSupport(){
     this.transformSupport = this.getTransformSupport();
     this.pixiService.app.stage.addChild(this.transformSupport);
@@ -219,17 +199,13 @@ export class RectangleEditorComponent implements OnInit {
   }
 
   onClickForTransform(target: PIXI.Graphics){
-    if(this.transformSupport){
-      this.transformSupport.destroy();
-      this.rotateSupport.destroy();
-    }
+    this.cleanUpSupport();
     this.initSupport();
-    const pos = target.getGlobalPosition();
-    this.transformSupport.x = pos.x - 25;
-    this.transformSupport.y = pos.y - 25;
+    this.transformSupport.x = target.x - 25;
+    this.transformSupport.y = target.y - 25;
     this.transformTarget = target;
-    this.rotateSupport.x = pos.x - 25;
-    this.rotateSupport.y = pos.y - 25;
+    this.rotateSupport.x = target.x - 25;
+    this.rotateSupport.y = target.y - 25;
     if(this.transformTarget.pivot.x == 0){
       this.setPivotCenter(this.transformTarget);
     }

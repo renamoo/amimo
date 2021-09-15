@@ -21,8 +21,8 @@ export class RectangleEditorService {
     return this.app;
   }
 
-  // drawGrid(){
-  //   this.app.stage.addChild(...this.createGrid());
+  // drawGrid(onGridPointerMove: (target: PIXI.Container, data:any) => void){
+  //   this.app.stage.addChild(...this.createGrid(onGridPointerMove));
   //   this.app.stage.addChild(...this.createBoldGrid());
   // }
 
