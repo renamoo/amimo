@@ -235,8 +235,8 @@ export class RectangleEditorComponent implements OnInit {
       const deltaX = cur.x - this.dragging.x;
       const deltaY = cur.y - this.dragging.y;
       if(deltaX != 0 || deltaY != 0){
-        const unit = this.matrixService.getIdentity();
-        this.matrixService.translate(deltaX, deltaY , unit);
+        const unit = new Matrix33();
+        unit.translate(deltaX, deltaY);
         this.transform(this.transformTarget, unit);
         this.transform(this.transformSupport, unit);
         this.transform(this.rotateSupport, unit);
