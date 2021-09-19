@@ -1,8 +1,9 @@
+import { MatrixService, Matrix33 } from './../../services/matrix.service';
 import { RectangleEditorService } from './rectangle-editor.service';
 import { StitchService } from './../../services/stitch.service';
 import { Component, ElementRef, Input, NgZone, OnInit, Renderer2, SimpleChange, SimpleChanges, ViewChild } from '@angular/core'
 import * as PIXI from 'pixi.js';
-import { DisplayObject, Graphics, InteractionEvent, Container } from 'pixi.js';
+import { DisplayObject, Graphics, InteractionEvent, Container, Matrix } from 'pixi.js';
 
 const getGridColor = () => PIXI.utils.string2hex("#AAAAAA");
 const getWhite = () => PIXI.utils.string2hex("#FFFFFF");
@@ -31,7 +32,8 @@ export class RectangleEditorComponent implements OnInit {
   constructor(private renderer: Renderer2,
     private service: StitchService,
     private zone:NgZone,
-    private pixiService: RectangleEditorService
+    private pixiService: RectangleEditorService,
+    private matrixService: MatrixService
     ) { }
 
   ngOnInit(): void {
@@ -180,9 +182,9 @@ export class RectangleEditorComponent implements OnInit {
     corner.endFill();
     corner.interactive = true;
     corner.buttonMode = true;
-    corner.on('pointerdown', event => this.onRotateStart(event));
-    corner.on('pointermove', event => this.onRotate(event));
-    corner.on('pointerup', event => this.onRotateEnd());
+    // corner.on('pointerdown', event => this.onRotateStart(event));
+    // corner.on('pointermove', event => this.onRotate(event));
+    // corner.on('pointerup', event => this.onRotateEnd());
     return corner;
   }
 
@@ -206,19 +208,20 @@ export class RectangleEditorComponent implements OnInit {
     this.transformTarget = target;
     this.rotateSupport.x = target.x - 25;
     this.rotateSupport.y = target.y - 25;
-    if(this.transformTarget.pivot.x == 0){
-      this.setPivotCenter(this.transformTarget);
-    }
-    this.setPivotCenter(this.rotateSupport);
-    this.setPivotCenter(this.transformSupport);
-    if(this.transformTarget.rotation > 0){
-      this.transformSupport.rotation = this.transformTarget.rotation;
-      this.rotateSupport.rotation = this.transformTarget.rotation;
-    }
+    // if(this.transformTarget.pivot.x == 0){
+    //   this.setPivotCenter(this.transformTarget);
+    // }
+    // this.setPivotCenter(this.rotateSupport);
+    // this.setPivotCenter(this.transformSupport);
+    // if(this.transformTarget.rotation > 0){
+    //   this.transformSupport.rotation = this.transformTarget.rotation;
+    //   this.rotateSupport.rotation = this.transformTarget.rotation;
+    // }
   }
 
   onDragStart(event: PIXI.InteractionEvent) {
-    this.dragging = event.data.global;
+    this.dragging = {x: event.data.global.x, y: event.data.global.y};
+    console.log( event.data.global.x)
   }
 
   onDragEnd() {
@@ -226,18 +229,26 @@ export class RectangleEditorComponent implements OnInit {
   }
 
   onDragMove(event:InteractionEvent) {
-    console.log('onDrag')
-    // 回転の向きと移動、回した時のroatteの座標
     if (this.dragging && event.data.pressure > 0) {
-        const cur = event.data.global;
-        this.transformSupport.x = cur.x;
-        this.transformSupport.y = cur.y;
-        this.rotateSupport.x = cur.x + ROTATE_BOX_SIZE/2;
-        this.rotateSupport.y = cur.y + ROTATE_BOX_SIZE/2;
-        const local = this.transformSupport.toLocal({x:0,y:0}, this.transformTarget.parent);
-        this.transformTarget.x = -(local.x) + TRANSFORM_BOX_SIZE/2;
-        this.transformTarget.y = -(local.y) + TRANSFORM_BOX_SIZE/2;
+      console.log(this.dragging.x, event.data.global.x)
+      const cur = event.data.global;
+      const deltaX = cur.x - this.dragging.x;
+      const deltaY = cur.y - this.dragging.y;
+      if(deltaX != 0 || deltaY != 0){
+        const unit = this.matrixService.getIdentity();
+        this.matrixService.translate(deltaX, deltaY , unit);
+        this.transform(this.transformTarget, unit);
+        this.transform(this.transformSupport, unit);
+        this.transform(this.rotateSupport, unit);
+        this.dragging = {x: cur.x, y: cur.y};
+      }
     }
+  }
+
+  transform(target: PIXI.Graphics, unit: Matrix33){
+    const {x, y} = this.matrixService.transform(target.x, target.y, unit);
+    target.x = x;
+    target.y = y;
   }
 
   onRotateStart(event: PIXI.InteractionEvent) {
