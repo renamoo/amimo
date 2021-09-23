@@ -1,3 +1,4 @@
+import { StitchService } from './../../services/stitch.service';
 import { ComponentModule } from './../component.module';
 import { RectangleEditorComponent } from './rectangle-editor.component';
 import { Injectable } from '@angular/core';
@@ -14,7 +15,7 @@ const getBlack = () => PIXI.utils.string2hex("#000000");
 export class RectangleEditorService {
   app!: PIXI.Application;
 
-  constructor() { }
+  constructor(private stService: StitchService) { }
 
   createApp(){
     this.app = new PIXI.Application({width: 500, height: 500, backgroundColor:getWhite(), antialias:true});
@@ -111,6 +112,25 @@ export class RectangleEditorService {
       ch.visible = true;
     });
     return image;
+  }
+
+  getSymbol(stitchType:number): PIXI.Graphics{
+    let rectangle = new Graphics();
+    rectangle.lineStyle(1,getBlack());
+    this.stService.drawStitch(rectangle, stitchType);
+    rectangle.interactive = true;
+    return rectangle;
+  }
+
+  drawStitch(stitchType:number, target: PIXI.Container){
+    let rectangle = this.getSymbol(stitchType);
+    rectangle.name = `stitch_${PIXI.utils.uid()}`;
+    rectangle.hitArea = new PIXI.Rectangle(0,0,20,20);
+    rectangle.buttonMode = true;
+    const global = target.getGlobalPosition();
+    rectangle.x = global.x;
+    rectangle.y = global.y;
+    return rectangle
   }
 
 }

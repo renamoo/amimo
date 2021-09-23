@@ -12,6 +12,19 @@ const getBlack = () => PIXI.utils.string2hex("#000000");
 const ROTATE_BOX_SIZE = 5;
 const TRANSFORM_BOX_SIZE = 70;
 
+interface StitchDetail{
+  /** position of left-upper point, 0,0 in local */
+  position: {
+    x: number;
+    y: number;
+  },
+  /** position of left-upper point, 0,0 in local without applying rotation */
+  positionWithoutRotate: {
+    x: number;
+    y: number;
+  },
+}
+
 @Component({
   selector: 'app-rectangle-editor',
   templateUrl: './rectangle-editor.component.html',
@@ -22,7 +35,7 @@ export class RectangleEditorComponent implements OnInit {
   @Input() mode!: number;
   @ViewChild('container') container!: ElementRef;
   grids!: PIXI.Graphics[];
-  stitches: PIXI.Graphics[] = [];
+  stitches: {[name:string]:StitchDetail} = {};
   transformTarget!: PIXI.Graphics;
   transformSupport!:PIXI.Graphics;
   rotateSupport!: PIXI.Graphics;
@@ -107,18 +120,21 @@ export class RectangleEditorComponent implements OnInit {
     if(data.pressure>0){
       switch(this.mode){
         case 0:
-          let rectangle = this.getSymbol();
-          rectangle.name = "stitch";
-          rectangle.hitArea = new PIXI.Rectangle(0,0,20,20);
-          rectangle.buttonMode = true;
-          const global = target.getGlobalPosition();
-          rectangle.x = global.x;
-          rectangle.y = global.y;
-          rectangle.on('pointermove', event => this.onStitchPointerMove(event.currentTarget, event.data));
-          rectangle.on('pointerdown', event => this.onClickForTransform(event.currentTarget));
-          this.pixiService.app.stage.addChild(rectangle);
+          const st = this.pixiService.drawStitch(this.stitchType, target);
+          st.on('pointermove', event => this.onStitchPointerMove(event.currentTarget, event.data));
+          st.on('pointerdown', event => this.onClickForTransform(event.currentTarget));
+          this.pixiService.app.stage.addChild(st);
+          this.addStitchMeta(st);
           break;
       }
+    }
+  }
+
+  addStitchMeta(st:PIXI.Graphics){
+    const po = {x: st.position.x, y: st.position.y};
+    this.stitches[st.name] = {
+      position: po,
+      positionWithoutRotate: po,
     }
   }
 
@@ -126,18 +142,11 @@ export class RectangleEditorComponent implements OnInit {
     if(data.pressure>0){
       switch(this.mode){
         case 1:
+          delete this.stitches[target.name];
           target.destroy();
           break;
       }
     }
-  }
-
-  getSymbol(): PIXI.Graphics{
-    let rectangle = new Graphics();
-    rectangle.lineStyle(1,getBlack());
-    this.service.drawStitch(rectangle, this.stitchType);
-    rectangle.interactive = true;
-    return rectangle;
   }
 
   getTransformSupport(){
@@ -182,9 +191,9 @@ export class RectangleEditorComponent implements OnInit {
     corner.endFill();
     corner.interactive = true;
     corner.buttonMode = true;
-    // corner.on('pointerdown', event => this.onRotateStart(event));
-    // corner.on('pointermove', event => this.onRotate(event));
-    // corner.on('pointerup', event => this.onRotateEnd());
+    corner.on('pointerdown', event => this.onRotateStart(event));
+    corner.on('pointermove', event => this.onRotate(event));
+    corner.on('pointerup', event => this.onRotateEnd());
     return corner;
   }
 
@@ -208,20 +217,10 @@ export class RectangleEditorComponent implements OnInit {
     this.transformTarget = target;
     this.rotateSupport.x = target.x - 25;
     this.rotateSupport.y = target.y - 25;
-    // if(this.transformTarget.pivot.x == 0){
-    //   this.setPivotCenter(this.transformTarget);
-    // }
-    // this.setPivotCenter(this.rotateSupport);
-    // this.setPivotCenter(this.transformSupport);
-    // if(this.transformTarget.rotation > 0){
-    //   this.transformSupport.rotation = this.transformTarget.rotation;
-    //   this.rotateSupport.rotation = this.transformTarget.rotation;
-    // }
   }
 
   onDragStart(event: PIXI.InteractionEvent) {
     this.dragging = {x: event.data.global.x, y: event.data.global.y};
-    console.log( event.data.global.x)
   }
 
   onDragEnd() {
@@ -230,7 +229,6 @@ export class RectangleEditorComponent implements OnInit {
 
   onDragMove(event:InteractionEvent) {
     if (this.dragging && event.data.pressure > 0) {
-      console.log(this.dragging.x, event.data.global.x)
       const cur = event.data.global;
       const deltaX = cur.x - this.dragging.x;
       const deltaY = cur.y - this.dragging.y;
@@ -240,19 +238,28 @@ export class RectangleEditorComponent implements OnInit {
         this.transform(this.transformTarget, unit);
         this.transform(this.transformSupport, unit);
         this.transform(this.rotateSupport, unit);
+        this.stitches[event.target.name].position = this.transformTarget.position;
+        this.stitches[event.target.name].positionWithoutRotate = {x: this.transformTarget.position.x, y: this.transformTarget.position.y};
         this.dragging = {x: cur.x, y: cur.y};
       }
     }
   }
 
-  transform(target: PIXI.Graphics, unit: Matrix33){
-    const {x, y} = this.matrixService.transform(target.x, target.y, unit);
-    target.x = x;
-    target.y = y;
+  /**
+   *
+   * @param target
+   * @param unit
+   * @param deltaX used to adjust x position when rotate around other than 0,0
+   * @param deltaY used to adjust y position when rotate around other than 0,0
+   */
+  transform(target: PIXI.Graphics, unit: Matrix33, deltaX=0, deltaY=0){
+    const {x, y} = this.matrixService.transform(target.x-deltaX, target.y-deltaY, unit);
+    target.x = x+deltaX;
+    target.y = y+deltaY;
   }
 
   onRotateStart(event: PIXI.InteractionEvent) {
-    this.rotating = event.data.global;
+    this.rotating = {x: event.data.global.x, y: event.data.global.y};
   }
 
   onRotateEnd() {
@@ -260,13 +267,28 @@ export class RectangleEditorComponent implements OnInit {
   }
 
   onRotate(event:InteractionEvent) {
-    console.log("onROtate")
     if (this.rotating && event.data.pressure>0) {
       const cur = event.data.global;
-      const radian = Math.atan2(Math.abs(cur.y - this.rotateSupport.y), Math.abs(cur.x - this.rotateSupport.x));
-      this.transformTarget.rotation = radian;
-      this.rotateSupport.rotation = radian;
-      this.transformSupport.rotation = radian;
+      const deltaX = this.stitches[this.transformTarget.name].positionWithoutRotate.x + 10;
+      const deltaY = this.stitches[this.transformTarget.name].positionWithoutRotate.y + 10;
+      console.log('B:', Math.atan2(this.rotating.y-deltaY, this.rotating.x-deltaX));
+      console.log('A:', Math.atan2(cur.y-deltaY, cur.x-deltaX))
+      console.log('R:', Math.atan2(this.rotating.y-deltaY, this.rotating.x-deltaX) - Math.atan2(cur.y-deltaY, cur.x-deltaX))
+      // const radian = Math.atan2(Math.abs(cur.y - this.rotateSupport.y), Math.abs(cur.x - this.rotateSupport.x));
+      // const radian = -Math.atan2(this.rotating.y-deltaY, this.rotating.x-deltaX) - Math.atan2(cur.y-deltaY, cur.x-deltaX);
+      const radian = 45 * ( Math.PI / 180 ) ;
+      this.transformTarget.rotation += radian;
+      this.rotateSupport.rotation += radian;
+      this.transformSupport.rotation += radian;
+      const unit = new Matrix33();
+      unit.rotate(radian);
+      this.transform(this.transformTarget, unit, deltaX, deltaY);
+      this.transform(this.transformSupport, unit, deltaX, deltaY);
+      this.transform(this.rotateSupport, unit, deltaX, deltaY);
+      this.stitches[this.transformTarget.name].position = this.transformTarget.position;
+      this.rotating = {x: cur.x, y: cur.y};
+      // stitches のデータ作成
+      // 角度の正しい算出
     }
   }
 
