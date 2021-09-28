@@ -258,19 +258,6 @@ export class RectangleEditorComponent implements OnInit {
     target.y = y+deltaY;
   }
 
-    /**
-   *
-   * @param target
-   * @param unit
-   * @param deltaX used to adjust x position when rotate around other than 0,0, left-uppper in local
-   * @param deltaY used to adjust y position when rotate around other than 0,0, left-uppper in local
-   */
-     transform2(target: PIXI.Graphics, unit: Matrix33, deltaX=0, deltaY=0, preX:number, preY:number){
-      const {x, y} = this.matrixService.transform(preX-deltaX, preY-deltaY, unit);
-      target.x = x+deltaX;
-      target.y = y+deltaY;
-    }
-
   onRotateStart(event: PIXI.InteractionEvent) {
     this.rotating = {x: event.data.global.x, y: event.data.global.y};
   }
@@ -282,6 +269,19 @@ export class RectangleEditorComponent implements OnInit {
   calcRadian(center: {x: number, y:number}, goal: {x: number, y:number}){
     // TODO: 45超えた角度の計算
     return 45 * ( Math.PI / 180 ) - Math.atan2(center.y-goal.y, goal.x - center.x);
+  }
+
+  /**
+   *
+   * @param target
+   * @param unit
+   * @param deltaX used to adjust x position when rotate around other than 0,0, left-uppper in local
+   * @param deltaY used to adjust y position when rotate around other than 0,0, left-uppper in local
+   */
+  applyRotate(target: PIXI.Graphics, unit: Matrix33, deltaX=0, deltaY=0, preX:number, preY:number){
+    const {x, y} = this.matrixService.transform(preX-deltaX, preY-deltaY, unit);
+    target.x = x+deltaX;
+    target.y = y+deltaY;
   }
 
   onRotate(event:InteractionEvent) {
@@ -297,13 +297,11 @@ export class RectangleEditorComponent implements OnInit {
       const unit = new Matrix33();
       unit.rotate(radian);
       const pure = this.stitches[this.transformTarget.name].positionWithoutRotate;
-      this.transform2(this.transformTarget, unit, deltaX, deltaY, pure.x, pure.y);
-      this.transform2(this.transformSupport, unit, deltaX, deltaY, pure.x-25, pure.y-25);
-      this.transform2(this.rotateSupport, unit, deltaX, deltaY, pure.x-25, pure.y-25);
+      this.applyRotate(this.transformTarget, unit, deltaX, deltaY, pure.x, pure.y);
+      this.applyRotate(this.transformSupport, unit, deltaX, deltaY, pure.x-25, pure.y-25);
+      this.applyRotate(this.rotateSupport, unit, deltaX, deltaY, pure.x-25, pure.y-25);
       this.stitches[this.transformTarget.name].position = this.transformTarget.position;
       this.rotating = {x: cur.x, y: cur.y};
-      // 角度の正しい算出
-      // スムーズな回転
     }
   }
 
