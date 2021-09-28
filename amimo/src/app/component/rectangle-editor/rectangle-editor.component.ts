@@ -249,14 +249,27 @@ export class RectangleEditorComponent implements OnInit {
    *
    * @param target
    * @param unit
-   * @param deltaX used to adjust x position when rotate around other than 0,0
-   * @param deltaY used to adjust y position when rotate around other than 0,0
+   * @param deltaX used to adjust x position when rotate around other than 0,0, left-uppper in local
+   * @param deltaY used to adjust y position when rotate around other than 0,0, left-uppper in local
    */
   transform(target: PIXI.Graphics, unit: Matrix33, deltaX=0, deltaY=0){
     const {x, y} = this.matrixService.transform(target.x-deltaX, target.y-deltaY, unit);
     target.x = x+deltaX;
     target.y = y+deltaY;
   }
+
+    /**
+   *
+   * @param target
+   * @param unit
+   * @param deltaX used to adjust x position when rotate around other than 0,0, left-uppper in local
+   * @param deltaY used to adjust y position when rotate around other than 0,0, left-uppper in local
+   */
+     transform2(target: PIXI.Graphics, unit: Matrix33, deltaX=0, deltaY=0, preX:number, preY:number){
+      const {x, y} = this.matrixService.transform(preX-deltaX, preY-deltaY, unit);
+      target.x = x+deltaX;
+      target.y = y+deltaY;
+    }
 
   onRotateStart(event: PIXI.InteractionEvent) {
     this.rotating = {x: event.data.global.x, y: event.data.global.y};
@@ -266,29 +279,31 @@ export class RectangleEditorComponent implements OnInit {
     this.rotating = null;
   }
 
+  calcRadian(center: {x: number, y:number}, goal: {x: number, y:number}){
+    // TODO: 45超えた角度の計算
+    return 45 * ( Math.PI / 180 ) - Math.atan2(center.y-goal.y, goal.x - center.x);
+  }
+
   onRotate(event:InteractionEvent) {
     if (this.rotating && event.data.pressure>0) {
       const cur = event.data.global;
+      // center position, used as a diff to calc rotated positions with pivot in center
       const deltaX = this.stitches[this.transformTarget.name].positionWithoutRotate.x + 10;
       const deltaY = this.stitches[this.transformTarget.name].positionWithoutRotate.y + 10;
-      console.log('B:', Math.atan2(this.rotating.y-deltaY, this.rotating.x-deltaX));
-      console.log('A:', Math.atan2(cur.y-deltaY, cur.x-deltaX))
-      console.log('R:', Math.atan2(this.rotating.y-deltaY, this.rotating.x-deltaX) - Math.atan2(cur.y-deltaY, cur.x-deltaX))
-      // const radian = Math.atan2(Math.abs(cur.y - this.rotateSupport.y), Math.abs(cur.x - this.rotateSupport.x));
-      // const radian = -Math.atan2(this.rotating.y-deltaY, this.rotating.x-deltaX) - Math.atan2(cur.y-deltaY, cur.x-deltaX);
-      const radian = 45 * ( Math.PI / 180 ) ;
-      this.transformTarget.rotation += radian;
-      this.rotateSupport.rotation += radian;
-      this.transformSupport.rotation += radian;
+      const radian = this.calcRadian({x:deltaX, y:deltaY}, cur);
+      this.transformTarget.rotation = radian;
+      this.rotateSupport.rotation = radian;
+      this.transformSupport.rotation = radian;
       const unit = new Matrix33();
       unit.rotate(radian);
-      this.transform(this.transformTarget, unit, deltaX, deltaY);
-      this.transform(this.transformSupport, unit, deltaX, deltaY);
-      this.transform(this.rotateSupport, unit, deltaX, deltaY);
+      const pure = this.stitches[this.transformTarget.name].positionWithoutRotate;
+      this.transform2(this.transformTarget, unit, deltaX, deltaY, pure.x, pure.y);
+      this.transform2(this.transformSupport, unit, deltaX, deltaY, pure.x-25, pure.y-25);
+      this.transform2(this.rotateSupport, unit, deltaX, deltaY, pure.x-25, pure.y-25);
       this.stitches[this.transformTarget.name].position = this.transformTarget.position;
       this.rotating = {x: cur.x, y: cur.y};
-      // stitches のデータ作成
       // 角度の正しい算出
+      // スムーズな回転
     }
   }
 
