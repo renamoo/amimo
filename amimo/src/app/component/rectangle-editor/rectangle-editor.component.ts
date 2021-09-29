@@ -267,8 +267,15 @@ export class RectangleEditorComponent implements OnInit {
   }
 
   calcRadian(center: {x: number, y:number}, goal: {x: number, y:number}){
-    // TODO: 45超えた角度の計算
-    return 45 * ( Math.PI / 180 ) - Math.atan2(center.y-goal.y, goal.x - center.x);
+    if(goal.x >= center.x && goal.y <= center.y){
+      return 45 * ( Math.PI / 180 ) - Math.atan2(center.y-goal.y, goal.x - center.x);
+    }else if(goal.x >= center.x && goal.y > center.y){
+      return 45 * ( Math.PI / 180 ) + Math.atan2(goal.y-center.y, goal.x - center.x);
+    }else if(goal.x >= center.x && goal.y > center.y){
+      return (180 + 45) * ( Math.PI / 180 ) - Math.atan2(goal.y-center.y, center.x - goal.x);
+    }else{
+      return 135 * ( Math.PI / 180 ) + Math.atan2(center.y-goal.y, center.x - goal.x);
+    }
   }
 
   /**
