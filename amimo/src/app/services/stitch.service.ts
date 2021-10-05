@@ -78,6 +78,12 @@ const STITCHES: Stitch[] = [
     path: "M50,05 A5,10 0,1,0 50,35 M50,35 A5,10 0,1,0 50,05 M50,35 A5,10 0,1,0 50,65 M50,65 A5,10 0,1,0 50,35 M50,65 A5,10 0,1,0 50,95 M50,95 A5,10 0,1,0 50,65",
     name: "立ち上がりくさり3目"
   },
+  {
+    index: 15,
+    path: "M30,20 L70,60 L50,80 Z",
+    name: "編み始め",
+    fill: 'black'
+  },
 ];
 @Injectable({
   providedIn: 'root'
@@ -169,6 +175,11 @@ export class StitchService {
         g.drawEllipse(10,3,2,3);
         g.drawEllipse(10,10,2,3);
         g.drawEllipse(10,17,2,3);
+        break;
+      case 15:
+        g.beginFill();
+        g.drawPolygon([new PIXI.Point(4,4),new PIXI.Point(15,12),new PIXI.Point(10,16)]);
+        g.endFill();
         break;
     }
     return g;
