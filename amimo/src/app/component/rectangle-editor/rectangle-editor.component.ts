@@ -160,23 +160,6 @@ export class RectangleEditorComponent implements OnInit {
     rectangle.on('pointerdown', event => this.onDragStart(event));
     rectangle.on('pointermove', event => this.onDragMove(event));
     rectangle.on('pointerup', event => this.onDragEnd());
-    // TODO: 自由変形のサポート
-    // for(let i = 0; i < 4; i++){
-    //   let corner = new Graphics();
-    //   corner.beginFill(getBlack());
-    //   corner.drawRect(0, 0, 5, 5);
-    //   corner.endFill();
-    //   corner.interactive = true;
-    //   corner.hitArea = new PIXI.Rectangle(0,0,5,5);
-    //   corner.buttonMode = true;
-    //   corner.on('pointerdown', event => console.log(event, 'a'));
-    //   corner.on('pointermove', event => this.onDragMove(event));
-    //   corner.on('pointerup', event => this.onDragEnd());
-    //   // 計算をずらして4つの組み合わせにする
-    //   corner.x = i % 2 == 0 ? -2.5 : 67.5;
-    //   corner.y = i < 2 ? -2.5 : 67.5;
-    //   rectangle.addChild(corner);
-    // }
     return rectangle;
   }
 
@@ -184,10 +167,8 @@ export class RectangleEditorComponent implements OnInit {
     const width = ROTATE_BOX_SIZE;
     let corner = new Graphics();
     corner.beginFill(getBlack());
-    corner.drawRect(-(width/2), -(width/2), width, width);
     corner.drawRect(TRANSFORM_BOX_SIZE - (width/2), -(width/2), width, width);
-    corner.drawRect(TRANSFORM_BOX_SIZE - (width/2), TRANSFORM_BOX_SIZE - (width/2), width, width);
-    corner.drawRect(-(width/2), TRANSFORM_BOX_SIZE - (width/2), width, width);
+    corner.hitArea = new PIXI.Rectangle(TRANSFORM_BOX_SIZE - (width/2) -(width/2)-5,-5,width + 10, width + 10);
     corner.endFill();
     corner.interactive = true;
     corner.buttonMode = true;
@@ -196,6 +177,21 @@ export class RectangleEditorComponent implements OnInit {
     corner.on('pointerup', event => this.onRotateEnd());
     return corner;
   }
+
+  // getScaleSupport(){
+  //   const width = ROTATE_BOX_SIZE;
+  //   let corner = new Graphics();
+  //   corner.beginFill(getBlack());
+  //   corner.drawRect(TRANSFORM_BOX_SIZE - (width/2), TRANSFORM_BOX_SIZE - (width/2), width, width);
+  //   corner.hitArea = new PIXI.Rectangle(0,0,20,20);
+  //   corner.endFill();
+  //   corner.interactive = true;
+  //   corner.buttonMode = true;
+  //   corner.on('pointerdown', event => this.onRotateStart(event));
+  //   corner.on('pointermove', event => this.onRotate(event));
+  //   corner.on('pointerup', event => this.onRotateEnd());
+  //   return corner;
+  // }
 
   private cleanUpSupport(){
     if(this.transformSupport){this.transformSupport.destroy();}
@@ -224,23 +220,28 @@ export class RectangleEditorComponent implements OnInit {
   }
 
   onDragEnd() {
-      this.dragging = null;
+    this.dragging = null;
   }
 
   onDragMove(event:InteractionEvent) {
     if (this.dragging && event.data.pressure > 0) {
-      const cur = event.data.global;
-      const deltaX = cur.x - this.dragging.x;
-      const deltaY = cur.y - this.dragging.y;
+      const afterX = event.data.global.x;
+      const afterY = event.data.global.y;
+      const deltaX = afterX - this.dragging.x;
+      const deltaY = afterY - this.dragging.y;
       if(deltaX != 0 || deltaY != 0){
         const unit = new Matrix33();
         unit.translate(deltaX, deltaY);
-        this.transform(this.transformTarget, unit);
-        this.transform(this.transformSupport, unit);
-        this.transform(this.rotateSupport, unit);
-        this.stitches[event.target.name].position = this.transformTarget.position;
-        this.stitches[event.target.name].positionWithoutRotate = {x: this.transformTarget.position.x, y: this.transformTarget.position.y};
-        this.dragging = {x: cur.x, y: cur.y};
+        this.applyMove(this.transformTarget, unit);
+        this.applyMove(this.transformSupport, unit);
+        this.applyMove(this.rotateSupport, unit);
+        this.stitches[this.transformTarget.name].position = this.transformTarget.position;
+        this.stitches[this.transformTarget.name].positionWithoutRotate = {
+          x: this.stitches[this.transformTarget.name].positionWithoutRotate.x + deltaX,
+          y: this.stitches[this.transformTarget.name].positionWithoutRotate.y + deltaY
+        };
+        console.log(this.stitches[this.transformTarget.name].position.y, this.stitches[this.transformTarget.name].positionWithoutRotate.y)
+        this.dragging = {x: afterX, y: afterY};
       }
     }
   }
@@ -252,7 +253,7 @@ export class RectangleEditorComponent implements OnInit {
    * @param deltaX used to adjust x position when rotate around other than 0,0, left-uppper in local
    * @param deltaY used to adjust y position when rotate around other than 0,0, left-uppper in local
    */
-  transform(target: PIXI.Graphics, unit: Matrix33, deltaX=0, deltaY=0){
+  applyMove(target: PIXI.Graphics, unit: Matrix33, deltaX=0, deltaY=0){
     const {x, y} = this.matrixService.transform(target.x-deltaX, target.y-deltaY, unit);
     target.x = x+deltaX;
     target.y = y+deltaY;
@@ -271,10 +272,10 @@ export class RectangleEditorComponent implements OnInit {
       return 45 * ( Math.PI / 180 ) - Math.atan2(center.y-goal.y, goal.x - center.x);
     }else if(goal.x >= center.x && goal.y > center.y){
       return 45 * ( Math.PI / 180 ) + Math.atan2(goal.y-center.y, goal.x - center.x);
-    }else if(goal.x >= center.x && goal.y > center.y){
+    }else if(goal.x <= center.x && goal.y > center.y){
       return (180 + 45) * ( Math.PI / 180 ) - Math.atan2(goal.y-center.y, center.x - goal.x);
     }else{
-      return 135 * ( Math.PI / 180 ) + Math.atan2(center.y-goal.y, center.x - goal.x);
+      return (180 + 45) * ( Math.PI / 180 ) + Math.atan2(center.y-goal.y, center.x - goal.x);
     }
   }
 
@@ -310,11 +311,5 @@ export class RectangleEditorComponent implements OnInit {
       this.stitches[this.transformTarget.name].position = this.transformTarget.position;
       this.rotating = {x: cur.x, y: cur.y};
     }
-  }
-
-  setPivotCenter(target: PIXI.Graphics){
-    target.pivot.set(target.width / 2, target.height / 2);
-    target.x = target.position.x + target.width / 2;
-    target.y = target.position.y + target.height / 2;
   }
 }
