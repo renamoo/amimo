@@ -29,7 +29,7 @@ export class TopPageComponent implements OnInit {
   onSave(){
     const a = document.createElement("a");
     document.body.appendChild(a);
-    a.download = 'foo.jpeg';
+    a.download = 'amizu.jpeg';
     a.href =　this.service.getImage();
     a.click();
     a.remove();

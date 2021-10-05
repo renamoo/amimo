@@ -22,6 +22,16 @@ export class RectangleEditorService {
     return this.app;
   }
 
+  createGridBase(){
+    let rectangle = new Graphics();
+    rectangle.lineStyle(1, getGridColor(), 1);
+    rectangle.drawRect(0, 0, 20, 20);
+    rectangle.interactive = true;
+    rectangle.hitArea = new PIXI.Rectangle(0,0,20,20);
+    rectangle.buttonMode = true;
+    return rectangle;
+  }
+
   createBoldGrid(){
     let recs = [];
     for(let i = 0; i < 500 / (20 * 5); i++){
@@ -47,15 +57,19 @@ export class RectangleEditorService {
   }
 
   getImage(){
-    this.forEachGrid((ch:PIXI.DisplayObject) => {
-      ch.visible = false;
+    this.app.stage.children.forEach(ch => {
+      if(!ch.name || !ch.name.startsWith("stitch_")){
+        ch.visible = false;
+      }
     });
     // convert should be done in the same event as rendering
     // Ref: https://stackoverflow.com/questions/26783586/canvas-todataurl-returns-blank-image/26790802#26790802
     this.app.render();
     const image = this.app.renderer.plugins.extract.base64(null,'image/jpeg');
-    this.forEachGrid((ch:PIXI.DisplayObject) => {
-      ch.visible = true;
+    this.app.stage.children.forEach(ch => {
+      if(!ch.name || !ch.name.startsWith("stitch_")){
+        ch.visible = true;
+      }
     });
     return image;
   }

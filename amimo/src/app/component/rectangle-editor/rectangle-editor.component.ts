@@ -78,25 +78,15 @@ export class RectangleEditorComponent implements OnInit {
     let recs = [];
     for(let i = 0; i < 500 / 20; i++){
       for(let j = 0; j < 500 / 20; j++){
-        let rec = this.createRectangleBase();
+        let rec = this.pixiService.createGridBase();
         rec.name = `grid_${i}_${j}`;
-        rec.buttonMode = true;
+        rec.on('pointermove', event => this.onGridPointerMove(event.currentTarget, event.data));
         rec.x = 20 * i;
         rec.y = 20 * j;
         recs.push(rec);
       }
     }
     return recs;
-  }
-
-  createRectangleBase(){
-    let rectangle = new Graphics();
-    rectangle.lineStyle(1, getGridColor(), 1);
-    rectangle.drawRect(0, 0, 20, 20);
-    rectangle.interactive = true;
-    rectangle.hitArea = new PIXI.Rectangle(0,0,20,20);
-    rectangle.on('pointermove', event => this.onGridPointerMove(event.currentTarget, event.data));
-    return rectangle;
   }
 
   onGridPointerMove(target: PIXI.Container, data:any){
@@ -229,7 +219,6 @@ export class RectangleEditorComponent implements OnInit {
           x: this.stitches[this.transformTarget.name].positionWithoutRotate.x + deltaX,
           y: this.stitches[this.transformTarget.name].positionWithoutRotate.y + deltaY
         };
-        console.log(this.stitches[this.transformTarget.name].position.y, this.stitches[this.transformTarget.name].positionWithoutRotate.y)
         this.dragging = {x: afterX, y: afterY};
       }
     }
