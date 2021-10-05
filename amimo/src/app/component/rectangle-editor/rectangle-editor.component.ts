@@ -41,9 +41,9 @@ export class RectangleEditorComponent implements OnInit {
   rotateSupport!: PIXI.Graphics;
   dragging: {x:number, y:number} | null = null;
   rotating:{x:number, y:number} | null = null;
+  debouncedGrids = new Set();
 
   constructor(private renderer: Renderer2,
-    private service: StitchService,
     private zone:NgZone,
     private pixiService: RectangleEditorService,
     private matrixService: MatrixService
@@ -58,8 +58,7 @@ export class RectangleEditorComponent implements OnInit {
       this.pixiService.createApp();
       this.renderer.appendChild(this.container.nativeElement, this.pixiService.app.view);
       this.pixiService.app.stage.addChild(...this.createGrid());
-      this.pixiService.app.stage.addChild(...this.createBoldGrid());
-      // this.pixiService.drawGrid(this.onGridPointerMove);
+      this.pixiService.app.stage.addChild(...this.pixiService.createBoldGrid());
       this.pixiService.app.renderer.plugins.interaction.moveWhenInside = true;
     });
   }
@@ -90,22 +89,6 @@ export class RectangleEditorComponent implements OnInit {
     return recs;
   }
 
-  createBoldGrid(){
-    let recs = [];
-    for(let i = 0; i < 500 / (20 * 5); i++){
-      for(let j = 0; j < 500 / (20 * 5); j++){
-        let rec = new Graphics();
-        rec.name = `grid_bold_${i}_${j}`;
-        rec.lineStyle(2, getGridColor(), 1);
-        rec.drawRect(0, 0, 100, 100);
-        rec.x = 100 * i;
-        rec.y = 100 * j;
-        recs.push(rec);
-      }
-    }
-    return recs;
-  }
-
   createRectangleBase(){
     let rectangle = new Graphics();
     rectangle.lineStyle(1, getGridColor(), 1);
@@ -120,11 +103,15 @@ export class RectangleEditorComponent implements OnInit {
     if(data.pressure>0){
       switch(this.mode){
         case 0:
-          const st = this.pixiService.drawStitch(this.stitchType, target);
-          st.on('pointermove', event => this.onStitchPointerMove(event.currentTarget, event.data));
-          st.on('pointerdown', event => this.onClickForTransform(event.currentTarget));
-          this.pixiService.app.stage.addChild(st);
-          this.addStitchMeta(st);
+          if(!this.debouncedGrids.has(target.name)){
+            this.debouncedGrids.add(target.name);
+            const st = this.pixiService.drawStitch(this.stitchType, target);
+            st.on('pointermove', event => this.onStitchPointerMove(event.currentTarget, event.data));
+            st.on('pointerdown', event => this.onClickForTransform(event.currentTarget));
+            this.pixiService.app.stage.addChild(st);
+            this.addStitchMeta(st);
+            setTimeout(() => this.debouncedGrids.delete(target.name), 500);
+          }
           break;
       }
     }
@@ -178,6 +165,7 @@ export class RectangleEditorComponent implements OnInit {
     return corner;
   }
 
+  // TODO: implement scale support system
   // getScaleSupport(){
   //   const width = ROTATE_BOX_SIZE;
   //   let corner = new Graphics();
@@ -206,6 +194,7 @@ export class RectangleEditorComponent implements OnInit {
   }
 
   onClickForTransform(target: PIXI.Graphics){
+    if(this.mode != 2){ return; }
     this.cleanUpSupport();
     this.initSupport();
     this.transformSupport.x = target.x - 25;

@@ -27,15 +27,12 @@ export class TopPageComponent implements OnInit {
   }
 
   onSave(){
-    // const url = URL.createObjectURL(this.service.getImage());
-    console.log(this.service.getImage());
     const a = document.createElement("a");
     document.body.appendChild(a);
     a.download = 'foo.jpeg';
     a.href =　this.service.getImage();
     a.click();
     a.remove();
-    // URL.revokeObjectURL(url);
   }
 
 }

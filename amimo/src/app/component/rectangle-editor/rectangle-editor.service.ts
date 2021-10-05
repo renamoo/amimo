@@ -22,75 +22,21 @@ export class RectangleEditorService {
     return this.app;
   }
 
-  // drawGrid(onGridPointerMove: (target: PIXI.Container, data:any) => void){
-  //   this.app.stage.addChild(...this.createGrid(onGridPointerMove));
-  //   this.app.stage.addChild(...this.createBoldGrid());
-  // }
-
-  // private createRectangleBase(){
-  //   let rectangle = new Graphics();
-  //   rectangle.lineStyle(1, getGridColor(), 1);
-  //   rectangle.drawRect(0, 0, 20, 20);
-  //   rectangle.interactive = true;
-  //   rectangle.hitArea = new PIXI.Rectangle(0,0,20,20);
-  //   rectangle.on('pointermove', event => this.onGridClick(event.currentTarget, event.data));
-  //   return rectangle;
-  // }
-
-  // private createGrid(){
-  //   let recs = [];
-  //   for(let i = 0; i < 500 / 20; i++){
-  //     for(let j = 0; j < 500 / 20; j++){
-  //       let rec = this.createRectangleBase();
-  //       rec.name = `grid_${i}_${j}`;
-  //       rec.buttonMode = true;
-  //       rec.x = 20 * i;
-  //       rec.y = 20 * j;
-  //       recs.push(rec);
-  //     }
-  //   }
-  //   return recs;
-  // }
-
-  // private createBoldGrid(){
-  //   let recs = [];
-  //   for(let i = 0; i < 500 / (20 * 5); i++){
-  //     for(let j = 0; j < 500 / (20 * 5); j++){
-  //       let rec = new Graphics();
-  //       rec.lineStyle(2, getGridColor(), 1);
-  //       rec.drawRect(0, 0, 100, 100);
-  //       rec.x = 100 * i;
-  //       rec.y = 100 * j;
-  //       recs.push(rec);
-  //     }
-  //   }
-  //   return recs;
-  // }
-
-  // private onGridClick(target: PIXI.Container, data:any){
-  //   if(data.pressure>0){
-  //     switch(this.mode){
-  //       case 0:
-  //         let rectangle = this.getSymbol();
-  //         target.removeChildren();
-  //         rectangle.name = "stitch";
-  //         rectangle.hitArea = new PIXI.Rectangle(0,0,20,20);
-  //         rectangle.buttonMode = true;
-  //         target.addChild(rectangle);
-  //         break;
-  //       case 1:
-  //         target.removeChildren();break;
-  //     }
-  //   }
-  // }
-
-  // private getSymbol(): PIXI.Graphics{
-  //   let rectangle = new Graphics();
-  //   rectangle.lineStyle(1,getBlack());
-  //   this.service.drawStitch(rectangle, this.stitchType);
-  //   rectangle.interactive = true;
-  //   return rectangle;
-  // }
+  createBoldGrid(){
+    let recs = [];
+    for(let i = 0; i < 500 / (20 * 5); i++){
+      for(let j = 0; j < 500 / (20 * 5); j++){
+        let rec = new Graphics();
+        rec.name = `grid_bold_${i}_${j}`;
+        rec.lineStyle(2, getGridColor(), 1);
+        rec.drawRect(0, 0, 100, 100);
+        rec.x = 100 * i;
+        rec.y = 100 * j;
+        recs.push(rec);
+      }
+    }
+    return recs;
+  }
 
   private forEachGrid(fn: (ch:PIXI.DisplayObject) => void){
     this.app.stage.children.forEach(ch => {
