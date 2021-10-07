@@ -19,6 +19,9 @@ export class RectangleEditorService {
 
   createApp(){
     this.app = new PIXI.Application({width: 500, height: 500, backgroundColor:getWhite(), antialias:true});
+    this.app.renderer.plugins.interaction.moveWhenInside = true;
+    this.app.renderer.plugins.interaction.cursorStyles["move"] = "move";
+    this.app.renderer.plugins.interaction.cursorStyles["rotate"] = "url('assets/rotate_cursor.svg'),auto";
     return this.app;
   }
 
@@ -48,10 +51,10 @@ export class RectangleEditorService {
     return recs;
   }
 
-  private forEachGrid(fn: (ch:PIXI.DisplayObject) => void){
+  changeGridCursor(cursor:string){
     this.app.stage.children.forEach(ch => {
       if(ch.name && ch.name.startsWith("grid")){
-        fn(ch);
+        ch.cursor = cursor;
       }
     });
   }

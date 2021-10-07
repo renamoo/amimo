@@ -59,7 +59,6 @@ export class RectangleEditorComponent implements OnInit {
       this.renderer.appendChild(this.container.nativeElement, this.pixiService.app.view);
       this.pixiService.app.stage.addChild(...this.createGrid());
       this.pixiService.app.stage.addChild(...this.pixiService.createBoldGrid());
-      this.pixiService.app.renderer.plugins.interaction.moveWhenInside = true;
     });
   }
 
@@ -67,9 +66,18 @@ export class RectangleEditorComponent implements OnInit {
     if(!sc["mode"].firstChange && (sc["mode"].previousValue != sc["mode"].currentValue)){
       switch(this.mode){
         case 0:
+          if(this.transformSupport){this.transformSupport.visible = false;}
+          if(this.rotateSupport){this.rotateSupport.visible = false;}
+          this.pixiService.changeGridCursor("pointer");
+        break;
         case 1:
           if(this.transformSupport){this.transformSupport.visible = false;}
           if(this.rotateSupport){this.rotateSupport.visible = false;}
+          this.pixiService.changeGridCursor("default");
+        break;
+        case 2:
+          this.pixiService.changeGridCursor("default");
+        break;
       }
     }
   }
@@ -132,8 +140,7 @@ export class RectangleEditorComponent implements OnInit {
     rectangle.drawRect(0, 0, TRANSFORM_BOX_SIZE, TRANSFORM_BOX_SIZE);
     rectangle.interactive = true;
     rectangle.hitArea = new PIXI.Rectangle(0,0,TRANSFORM_BOX_SIZE,TRANSFORM_BOX_SIZE);
-    // TODO:　カーソルを十字にする
-    rectangle.buttonMode = true;
+    rectangle.cursor = "move";
     rectangle.on('pointerdown', event => this.onDragStart(event));
     rectangle.on('pointermove', event => this.onDragMove(event));
     rectangle.on('pointerup', event => this.onDragEnd());
@@ -148,7 +155,7 @@ export class RectangleEditorComponent implements OnInit {
     corner.hitArea = new PIXI.Rectangle(TRANSFORM_BOX_SIZE - (width/2) -(width/2)-5,-5,width + 10, width + 10);
     corner.endFill();
     corner.interactive = true;
-    corner.buttonMode = true;
+    corner.cursor = "rotate";
     corner.on('pointerdown', event => this.onRotateStart(event));
     corner.on('pointermove', event => this.onRotate(event));
     corner.on('pointerup', event => this.onRotateEnd());
