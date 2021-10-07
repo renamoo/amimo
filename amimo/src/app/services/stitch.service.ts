@@ -82,6 +82,23 @@ const STITCHES: Stitch[] = [
     index: 15,
     path: "M30,20 L70,60 L50,80 Z",
     name: "編み始め",
+  },
+  {
+    index: 16,
+    path: "M30,20 L70,60 L50,80 Z",
+    name: "編み終わり",
+    fill: 'black'
+  },
+  {
+    index: 17,
+    path: "M20,50 A20,10 0,1,0 80,50 M80,50 A20,10 0,1,0 20,50",
+    name: "引き抜き編み",
+    fill: 'black'
+  },
+  {
+    index: 18,
+    path: "M20,30 A5,5 0,1,0 30,30 M30,30 A5,5 0,1,0 20,30",
+    name: "立ち上がり目に引き抜き編み",
     fill: 'black'
   },
 ];
@@ -179,6 +196,19 @@ export class StitchService {
       case 15:
         g.beginFill();
         g.drawPolygon([new PIXI.Point(4,4),new PIXI.Point(15,12),new PIXI.Point(10,16)]);
+        g.endFill();
+        break;
+      case 16:
+        g.drawPolygon([new PIXI.Point(4,4),new PIXI.Point(15,12),new PIXI.Point(10,16)]);
+        break;
+      case 17:
+        g.beginFill();
+        g.drawEllipse(10,10,7,4);
+        g.endFill();
+        break;
+      case 18:
+        g.beginFill();
+        g.drawCircle(5,5,2)
         g.endFill();
         break;
     }
