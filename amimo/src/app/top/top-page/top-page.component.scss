@@ -47,6 +47,12 @@
   z-index: 2;
 }
 
+@media screen and (max-width: 768px) {
+  .editors {
+    padding: 40px 8px 0;
+  }
+}
+
 .shadow_middle {
   background: $accent-light-blue;
   width: 500px;
@@ -88,6 +94,6 @@
 }
 
 .description_mobile {
-  padding: 40px 40px;
+  padding: 32px 40px 16px;
   line-height: 1.5rem;
 }
