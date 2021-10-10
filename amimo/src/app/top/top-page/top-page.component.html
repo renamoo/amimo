@@ -50,7 +50,7 @@
       以下のような編み目記号をサポートしています。
     </div>
     <div class="selector">
-      <app-stitch-selector [selected]="hideStitchSelect ? null : selectedStitch" (selectedChange)="onStichSelect($event)"></app-stitch-selector>
+      <app-stitch-selector [selected]="null" [disabled]="true"></app-stitch-selector>
     </div>
   </div>
 </div>

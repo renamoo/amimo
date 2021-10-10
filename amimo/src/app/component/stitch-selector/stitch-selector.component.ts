@@ -9,6 +9,7 @@ import { Stitch } from './../../interfaces';
 })
 export class StitchSelectorComponent implements OnInit {
   @Input() selected!: number | null;
+  @Input() disabled: boolean = false;
   @Output() selectedChange = new EventEmitter<number>();
   hovered!: number | null;
   stitch_btns!:Stitch[];
@@ -28,6 +29,7 @@ export class StitchSelectorComponent implements OnInit {
   }
 
   onClick(ind:number){
+    if(this.disabled){return;}
     this.selected = ind;
     this.selectedChange.emit(ind);
   }
