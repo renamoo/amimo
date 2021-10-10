@@ -80,6 +80,12 @@
   margin: 16px 20%;
 }
 
+@media screen and (max-width: 768px) {
+  .selector {
+    margin: 16px 8px;
+  }
+}
+
 .mode-selector {
   margin-top: 12px;
 }
