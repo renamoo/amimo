@@ -8,6 +8,19 @@
   padding-bottom: 0;
 }
 
+.page.mobile {
+  display: none;
+}
+
+@media screen and (max-width: 768px) {
+  .page.mobile {
+    display: block;
+  }
+  .page.pc {
+    display: none;
+  }
+}
+
 .left {
   display: grid;
   position: relative;
@@ -72,4 +85,9 @@
     @include button_style;
     background: white;
   }
+}
+
+.description_mobile {
+  padding: 40px 40px;
+  line-height: 1.5rem;
 }
