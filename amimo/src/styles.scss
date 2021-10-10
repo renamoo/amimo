@@ -14,6 +14,12 @@ body {
   overflow: hidden;
 }
 
+@media screen and (max-width: 768px) {
+  body {
+    overflow-y: auto;
+  }
+}
+
 // Personally added styles
 .page {
   padding: 16px;
